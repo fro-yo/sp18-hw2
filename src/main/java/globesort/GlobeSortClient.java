@@ -56,6 +56,8 @@ public class GlobeSortClient {
         elapsed = System.nanoTime() - current;
 
         double sec = ((double)elapsed) / 1.0E09;
+
+        System.out.println ("Received sort time: " + response.getSortTime());
         double sortTime = ((double)response.getSortTime() / 1.0E09);
 
         System.out.println("Sorted array");

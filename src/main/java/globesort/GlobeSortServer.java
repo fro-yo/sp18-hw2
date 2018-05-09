@@ -94,8 +94,8 @@ public class GlobeSortServer {
                 responseBuilder.addValues(val);
             }
 
-
             elapsed = System.nanoTime() - current;
+            System.out.println("Time to sort: " + elapsed);
             responseBuilder.setSortTime(elapsed);
             IntArray response = responseBuilder.build();
 
