@@ -59,12 +59,13 @@ public class GlobeSortClient {
 
         System.out.println ("Received sort time: " + response.getSortTime());
         double sortTime = ((double)response.getSortTime() / 1.0E09);
+        long bytesExchanged = (values.length * 4) + 8;
 
         System.out.println("Sorted array");
         System.out.println("Numbers sorted: " + values.length);
         System.out.println("Total Time Taken: " + sec);
         System.out.println("Time taken for sorting = " + sortTime);
-        System.out.println("Network time (one way) = " + (sec - sortTime)/2);
+        System.out.println("Network throughput (one way) = " + (bytesExchanged / ((sec - sortTime)/2)));
         System.out.println("Records/Sec = " + ((double)values.length/sec));
     }
 
