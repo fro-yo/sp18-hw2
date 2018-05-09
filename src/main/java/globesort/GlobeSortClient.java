@@ -25,28 +25,45 @@ public class GlobeSortClient {
     private final ManagedChannel serverChannel;
     private final GlobeSortGrpc.GlobeSortBlockingStub serverStub;
 
-	private static int MAX_MESSAGE_SIZE = 100 * 1024 * 1024;
+    private static int MAX_MESSAGE_SIZE = 100 * 1024 * 1024;
 
     private String serverStr;
 
     public GlobeSortClient(String ip, int port) {
         this.serverChannel = ManagedChannelBuilder.forAddress(ip, port)
-				.maxInboundMessageSize(MAX_MESSAGE_SIZE)
-                .usePlaintext(true).build();
+            .maxInboundMessageSize(MAX_MESSAGE_SIZE)
+            .usePlaintext(true).build();
         this.serverStub = GlobeSortGrpc.newBlockingStub(serverChannel);
 
         this.serverStr = ip + ":" + port;
     }
 
     public void run(Integer[] values) throws Exception {
+        long current, elapsed;
         System.out.println("Pinging " + serverStr + "...");
+
+        current = System.nanoTime();
         serverStub.ping(Empty.newBuilder().build());
-        System.out.println("Ping successful.");
+        elapsed = System.nanoTime() - current;
+
+        System.out.println("Ping successful. Time Taken: " + (elapsed/1.0E09));
 
         System.out.println("Requesting server to sort array");
         IntArray request = IntArray.newBuilder().addAllValues(Arrays.asList(values)).build();
+
+        current = System.nanoTime();
         IntArray response = serverStub.sortIntegers(request);
+        elapsed = System.nanoTime() - current;
+
+        double sec = ((double)elapsed) / 1.0E09;
+        double sortTime = ((double)response.getSortTime() / 1.0E09);
+
         System.out.println("Sorted array");
+        System.out.println("Numbers sorted: " + values.length);
+        System.out.println("Total Time Taken: " + sec);
+        System.out.println("Time taken for sorting = " + sortTime);
+        System.out.println("Network time (one way) = " + (sec - sortTime)/2);
+        System.out.println("Records/Sec = " + ((double)values.length/sec));
     }
 
     public void shutdown() throws InterruptedException {
@@ -64,13 +81,13 @@ public class GlobeSortClient {
 
     private static Namespace parseArgs(String[] args) {
         ArgumentParser parser = ArgumentParsers.newFor("GlobeSortClient").build()
-                .description("GlobeSort client");
+            .description("GlobeSort client");
         parser.addArgument("server_ip").type(String.class)
-                .help("Server IP address");
+            .help("Server IP address");
         parser.addArgument("server_port").type(Integer.class)
-                .help("Server port");
+            .help("Server port");
         parser.addArgument("num_values").type(Integer.class)
-                .help("Number of values to sort");
+            .help("Number of values to sort");
 
         Namespace res = null;
         try {

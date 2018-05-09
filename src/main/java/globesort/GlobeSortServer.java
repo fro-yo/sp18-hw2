@@ -17,15 +17,15 @@ import java.util.stream.Collectors;
 public class GlobeSortServer {
     private Server server;
 
-	private static int MAX_MESSAGE_SIZE = 100 * 1024 * 1024;
+    private static int MAX_MESSAGE_SIZE = 100 * 1024 * 1024;
 
     private void start(String ip, int port) throws IOException {
         server = NettyServerBuilder.forAddress(new InetSocketAddress(ip, port))
-                    .addService(new GlobeSortImpl())
-					.maxMessageSize(MAX_MESSAGE_SIZE)
-                    .executor(Executors.newFixedThreadPool(10))
-                    .build()
-                    .start();
+            .addService(new GlobeSortImpl())
+            .maxMessageSize(MAX_MESSAGE_SIZE)
+            .executor(Executors.newFixedThreadPool(10))
+            .build()
+            .start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -48,11 +48,11 @@ public class GlobeSortServer {
 
     private static Namespace parseArgs(String[] args) {
         ArgumentParser parser = ArgumentParsers.newFor("GlobeSortClient").build()
-                .description("GlobeSort client");
+            .description("GlobeSort client");
         parser.addArgument("server_port").type(Integer.class)
-                .help("Server port");
+            .help("Server port");
         parser.addArgument("-a", "--address").type(String.class).setDefault("0.0.0.0")
-                .help("Server IP address to bind to");
+            .help("Server IP address to bind to");
 
         Namespace res = null;
         try {
@@ -86,13 +86,19 @@ public class GlobeSortServer {
 
         @Override
         public void sortIntegers(IntArray req, final StreamObserver<IntArray> responseObserver) {
+            long current = System.nanoTime(), elapsed;
             Integer[] values = req.getValuesList().toArray(new Integer[req.getValuesList().size()]);
             Arrays.sort(values);
             IntArray.Builder responseBuilder = IntArray.newBuilder();
             for(Integer val : values) {
                 responseBuilder.addValues(val);
             }
+
+
+            elapsed = System.nanoTime() - current;
+            responseBuilder.setSortTime(elapsed);
             IntArray response = responseBuilder.build();
+
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }
