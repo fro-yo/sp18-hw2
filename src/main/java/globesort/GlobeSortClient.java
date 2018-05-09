@@ -62,11 +62,12 @@ public class GlobeSortClient {
         long bytesExchanged = (values.length * 4) + 8;
 
         System.out.println("Sorted array");
-        System.out.println("Numbers sorted: " + values.length);
         System.out.println("Total Time Taken: " + sec);
-        System.out.println("Time taken for sorting = " + sortTime);
-        System.out.println("Network throughput (one way) = " + (bytesExchanged / ((sec - sortTime)/2)));
-        System.out.println("Records/Sec = " + ((double)values.length/sec));
+        System.out.println("----------------------------------------------\n");
+        System.out.println("Net = " + (bytesExchanged / ((sec - sortTime)/2)));
+        System.out.println("App = " + ((double)values.length/sec));
+	System.out.println();
+        System.out.println("----------------------------------------------\n");
     }
 
     public void shutdown() throws InterruptedException {
